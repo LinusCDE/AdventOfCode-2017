@@ -61,7 +61,7 @@ if __name__ == '__main__':  # Main part
     # Name of module, function and input file for current puzzle
     module_name = 'puzzle' + str(args.day)
     func_name = 'solve_part_' + str(args.part)
-    input_file_name = args.file if args.file else 'inputs/input' + str(args.day)
+    input_file_name = args.file if args.file else 'inputs/input%s' % args.day
 
     # Getting function for requested day and part:
     puzzle = None
@@ -70,7 +70,7 @@ if __name__ == '__main__':  # Main part
         if not hasattr(puzzle, func_name):
             raise Exception('Part not supported yet!')
         puzzle.log = log  # Injects log-function
-    except:
+    except Exception:
         print(argv[0], 'error', 'Day ' + str(args.day) + ', Part '
               + str(args.part) + ' can\'t be solved, yet.', sep=': ',
               file=stderr)
