@@ -13,7 +13,7 @@ def solve_part_1(puzzle_input):
         digit, next_digit = digits[index], elm_at(digits, index + 1)
         if digit is next_digit:
             total_sum += digit
-            log('+ %d', digit)
+            log('+ %d' % digit)
     return total_sum
 
 
