@@ -1,4 +1,4 @@
-log = None  # No neccessary. Only for your linter to know about the variable.
+log = None  # Not neccessary. Only for your linter to know about the variable.
 
 
 def elm_at(array: list, index: int):

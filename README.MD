@@ -1,7 +1,7 @@
 # Solving Puzzles at [AdventOfCode.com](https://adventofcode.com/2017)
 
 ## General
-In this repo I'll solve the AoC-Challanges as far as I wan't (and have time) to.
+In this repo I'll solve the AoC-Challanges as far as I want (and have time) to.
 
 Feel Free to use this as a simplified structure for your own scripts.
 
@@ -36,4 +36,4 @@ You can either specify a file using `--file <Path>`, a string for short inputs w
 
 ## Disclaimer
 
-I'll add the solutions (I wanted to make or had time to) always a few days later to prevent abuse of the solutions.
+The inputs found, are my personal ones. If you want your solution, you can replace them with your own or specify with `--path` or `--input`.
