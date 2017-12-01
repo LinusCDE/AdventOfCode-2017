@@ -1,7 +1,7 @@
 log = None  # Not neccessary. Only for your linter to know about the variable.
 
 
-def elm_at(array: list, index: int):
+def elm_at(array, index: int):
     '''Gets element of a list and prevents overflowing.'''
     return array[index % len(array)]
 
