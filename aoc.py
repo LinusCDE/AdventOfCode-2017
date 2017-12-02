@@ -53,7 +53,7 @@ if __name__ == '__main__':  # Main part
                     ' work with "--repeat".')
     ap.add_argument('--repeat', '-n', type=int, metavar='times',
                     default=1, help='Repeat multiple times for a best time.')
-    ap.add_argument('--no-garbage-collect', '-GC', action='store_true',
+    ap.add_argument('--no-garbage-collect', '-G', action='store_true',
                     default=False, help='Disable automatic garbage collection'
                     ' during solving. Impacts timings and should be tried both'
                     ' since there does not seem to be good rule for when it is'
