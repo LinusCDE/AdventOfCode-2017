@@ -22,7 +22,7 @@ def solve_part_2(puzzle_input):
         entries = list(int(val) for val in row.split('\t'))
         checksum_row = 0  # Default checksum
         for entry1, entry2 in permutations(entries, 2):
-            if entry1 % entry2 is 0:  # Check if entry1 can be devided by entry2
+            if entry1 % entry2 is 0:
                 checksum_row = entry1 // entry2  # <-- The checksum
                 break
         else:  # No checksum found
