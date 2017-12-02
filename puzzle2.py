@@ -24,6 +24,7 @@ def solve_part_2(puzzle_input):
         for entry1, entry2 in permutations(entries, 2):
             if entry1 % entry2 is 0:  # Check if entry1 can be devided by entry2
                 checksum_row = entry1 // entry2  # <-- The checksum
+                break
         else:  # No checksum found
             raise Exception('Could not find any checksum for row: "%s"' % row)
         log('Row-Checksum: %d' % checksum_row)
