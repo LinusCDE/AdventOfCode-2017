@@ -37,6 +37,10 @@ def spiral(skip_to_step=None):
     if not skip_to_step:
         yield pos
 
+    if skip_to_step == 1:  # To prevent step 1 from beeing skipped
+        yield pos
+        return
+
     # Only necessary for the use of 'skip_to_step':
     target_pos, step = None, 1
     while True:
