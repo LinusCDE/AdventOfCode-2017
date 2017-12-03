@@ -2,7 +2,8 @@ log = None
 
 
 def distance(pos1: tuple, pos2: tuple):
-    '''Returns the Manhatten-Distance of two points.'''
+    '''Returns the Manhattan distance of two points.'''
+    # Scheme: n_dist = (p1N - p2N) if (p1N > p2N) else (p2N - p1N)
     x_dist = pos1[0] - pos2[0] if pos1[0] > pos2[0] else pos2[0] - pos1[0]
     y_dist = pos1[1] - pos2[1] if pos1[1] > pos2[1] else pos2[1] - pos1[1]
     return x_dist + y_dist
@@ -32,7 +33,8 @@ def vector_turn_left(vec: tuple):
 
 def spiral(skip_to_step=None):
     '''Generates all positions of the spiral. If 'skip_to_step' is given,
-    all positions except the final position to be about 57 times faster.'''
+    all positions except the final position to be about 57 times faster
+    with the given puzzle_input.'''
     pos, vec, width, height, remain = (0, 0), VEC_RIGHT, 1, 0, 1
     if not skip_to_step:
         yield pos
