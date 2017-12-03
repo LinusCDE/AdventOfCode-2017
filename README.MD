@@ -34,6 +34,8 @@ You can use the `log(message)`-Function as defined in `aoc.py`. It'll be automat
 
 You can either specify a file using `--file <Path>`, a string for short inputs with `--input <Input>` or place the file into `inputs/input<Day>` (without any file extension).
 
-## Disclaimer
+## Disclaimers
 
 The inputs found, are my personal ones. If you want your solution, you can replace them with your own or specify with `--path` or `--input`.
+
+The solutions my not be 'political correct' to the theory behind it. I try to solve the puzzles with minimal help and research as possible. This repo still should contain my solutions and not the ones that can be found on [wikipedia](https://www.wikipedia.org/).
