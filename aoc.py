@@ -16,9 +16,9 @@ from time import time
 verbose = False  # Whether the log-function will work. Is set by an argument.
 
 
-def time_str(millis, precision=5):
+def time_str(millis, precision=3):
     '''Converts millisconds to a string that is nice to read'''
-    # A higher precision than 5 digits is not useful.
+    # A higher precision than 3 digits is not useful.
     # To see this yourself just execute 'time.time(), time.time()' multiple
     # times and see the fluctuation yourself
     string = ('%.' + str(precision) + 'f milliseconds') % (millis % 1000)
