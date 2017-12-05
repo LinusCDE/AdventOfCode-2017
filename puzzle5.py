@@ -1,6 +1,10 @@
 from sys import maxsize
 
 
+print('Hint: Run this puzzle with \'pypy3\' to get vastly improved '
+      'performance. (especially in part 2)')
+
+
 def solve_part_1(puzzle_input):
     jump_list = list(map(int, puzzle_input.split('\n')))  # Input as int-list
     size, current_index = len(jump_list), 0  # Needed variables
