@@ -1,6 +1,3 @@
-log = None
-
-
 def distance(pos1: tuple, pos2: tuple):
     '''Returns the Manhattan distance of two points.'''
     # Scheme: n_dist = (p1N - p2N) if (p1N > p2N) else (p2N - p1N)
