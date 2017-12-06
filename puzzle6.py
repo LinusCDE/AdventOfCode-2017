@@ -21,7 +21,7 @@ def find_duplicate_allocation(banks: str):
             banks[index % total_banks] += 1
 
         # Checksum of the current bank for faster finding in banks_history:
-        checksum = str(',').join(map(str, banks))
+        checksum = ','.join(map(str, banks))
 
         if checksum in banks_history:
             seen_at = banks_history.index(checksum)
