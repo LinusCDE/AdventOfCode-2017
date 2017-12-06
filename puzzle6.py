@@ -14,9 +14,8 @@ def find_duplicate_allocation(banks: str):
 
         banks[biggest_at] = 0  # Clear current bank
         # Re-distribute the all blocks on the banks:
-        for index in map(lambda index: index % total_banks,  # prevent overflow
-                         range(biggest_at+1, biggest_at + biggest_val + 1)):
-            banks[index] += 1
+        for index in range(biggest_at + 1, biggest_at + biggest_val + 1):
+            banks[index % total_banks] += 1
         banks_tuple = tuple(banks)  # Save new bank allocations as tuple
         if banks_tuple in banks_history:
             seen_at = banks_history.index(banks_tuple)
