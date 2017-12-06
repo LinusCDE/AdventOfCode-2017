@@ -1,7 +1,10 @@
 from itertools import count
 
 
-def find_duplicate_allocation(banks: str):
+print('Hint: Run this puzzle with \'pypy3\' to get improved performance')
+
+
+def find_duplicate_allocation(banks: str) -> tuple:
     '''Returns the reallocation count as well as the index of the duplicated
      bank that was found.'''
     banks_history = list()  # Contains all previous banks as checksums
