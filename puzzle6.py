@@ -4,7 +4,7 @@ from itertools import count
 def find_duplicate_allocation(banks: str):
     '''Returns the reallocation count as well as the index of the duplicated
      bank that was found.'''
-    banks_history = list()  # Contains all previous banks as lists
+    banks_history = list()  # Contains all previous banks as checksums
     banks = list(map(int, banks.split()))
     total_banks = len(banks)
 
@@ -20,10 +20,13 @@ def find_duplicate_allocation(banks: str):
         for index in range(biggest_at + 1, biggest_at + biggest_val + 1):
             banks[index % total_banks] += 1
 
-        if banks in banks_history:
-            seen_at = banks_history.index(banks)
+        # Checksum of the current bank for faster finding in banks_history:
+        checksum = str(',').join(map(str, banks))
+
+        if checksum in banks_history:
+            seen_at = banks_history.index(checksum)
             return (reallocations, seen_at + 1)
-        banks_history.append(banks.copy())
+        banks_history.append(checksum)
 
 
 def solve_part_1(puzzle_input):
