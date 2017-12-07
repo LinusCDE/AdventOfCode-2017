@@ -1,3 +1,9 @@
+'''
+Help for part 2:
+https://gist.github.com/LinusCDE/109536a4a4b319c107c6112b6efb89d9
+'''
+
+
 log = None
 
 
