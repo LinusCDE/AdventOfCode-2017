@@ -1,3 +1,6 @@
+import json
+
+
 def parse_data(puzzle_input: str) -> tuple:
     weight = {}  # Format: {prog1, weight1, prog2: weight2, ...}
     held = {}  # Format: {prog1: [prog2, prog3, ...], ...}
@@ -44,36 +47,51 @@ def minority(elms) -> int:
     return min(elms, key=lambda elm: elm_count[elm])
 
 
-def get_weight(prog_name, held, weight_data):
-    if prog_name in held:
+def get_weight_sum(prog_name, held, weight_data):
+    if len(held[prog_name]) > 0:
         progs = held[prog_name]
-        return weight_data[prog_name] + sum(map(lambda prog: get_weight(prog, held, weight_data), progs))
+        sub_progs_sum = sum(map(lambda prog: get_weight_sum(prog, held, weight_data), progs))
+        return weight_data[prog_name] + sub_progs_sum
     else:
         return weight_data[prog_name]
 
 
+def to_node(prog_name, held, weight_data, attach_to=dict()):
+    result = {}
+
+    # Add Weight info:
+    total_weight = get_weight_sum(prog_name, held, weight_data)
+    self_weight = weight_data[prog_name]
+    result['WEIGHT'] = self_weight
+    if self_weight != total_weight:
+        result['TOTAL_WEIGHT'] = total_weight
+
+    # Add Subprograms recursivly:
+    sub_progs = held.get(prog_name, [])
+    sub_progs_weights = list()
+    for sub_prog in sub_progs:
+        to_node(sub_prog, held, weight_data, attach_to=result)
+        if isinstance(result[sub_prog], dict):
+            sub_dat = result[sub_prog]
+            sub_progs_weights.append(sub_dat['TOTAL_WEIGHT'] if 'TOTAL_WEIGHT' in sub_dat else sub_dat['WEIGHT'])
+        else:
+            sub_progs_weights.append(result[sub_prog])
+    if minority(sub_progs_weights) is not None:
+        result['UNBLANCED'] = True
+    else:
+        result = total_weight
+
+    # Only weight as value if no recursion available:
+    if isinstance(result, dict) and len(result) is 1:
+        result = result['WEIGHT']
+
+    # Attach to given dict:
+    attach_to[prog_name] = result
+    return attach_to
+
+
 def solve_part_2(puzzle_input):
     prog_toplevel, held, weight_data = parse_data(puzzle_input)
-    # Strip all empty lists from 'held':
-    for prog_name in tuple(held.keys()):
-        if len(held[prog_name]) is 0:
-            del held[prog_name]
-    if True:
-        progs = held[prog_toplevel]
-        weights = tuple(get_weight(prog, held, weight_data) for prog in progs)
-        fault, fault_prog = minority(weights), None
-        correct_weight = None
-        if fault is not None:  # Find faulty program
-            log('--------------------')
-            for prog, weight in zip(progs, weights):
-                log('%s: %d' %(prog, weight))
-                if weight == fault:
-                    fault_prog = prog
-                else:
-                    correct_weight = weight
-            weight_self = weight_data[fault_prog]
-            diff = fault - correct_weight
-            corr = weight_self - diff
-            log('%s has a faulty weight of %d.' % (fault_prog, fault))
-            return corr
-    return None
+    structure = to_node(prog_toplevel, held, weight_data)
+    print('"%s":' % prog_toplevel)
+    print(json.dumps(structure[prog_toplevel], indent=4, sort_keys=False))
