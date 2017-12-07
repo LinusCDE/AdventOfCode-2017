@@ -74,12 +74,14 @@ def to_node(prog_name, held, weight_data, attach_to=dict()):
         if isinstance(result[sub_prog], dict):
             sub_dat = result[sub_prog]
             sub_progs_weights.append(sub_dat['TOTAL_WEIGHT'] if 'TOTAL_WEIGHT' in sub_dat else sub_dat['WEIGHT'])
-        else:
+        elif isinstance(result[sub_prog], int):
             sub_progs_weights.append(result[sub_prog])
+        else:
+            sub_progs_weights.append(int(result[sub_prog].split(' / ')[1]))
     if minority(sub_progs_weights) is not None:
         result['UNBLANCED'] = True
     else:
-        result = total_weight
+        result = '%d / %d' % (self_weight, total_weight)
 
     # Only weight as value if no recursion available:
     if isinstance(result, dict) and len(result) is 1:
