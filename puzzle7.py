@@ -1,10 +1,3 @@
-class Solution(Exception):  # Misuse of exception handling
-
-    def __init__(self, solution):
-        Exception.__init__(self)
-        self.solution = solution
-
-
 def parse_data(puzzle_input: str) -> tuple:
     weight = {}  # Format: {prog1, weight1, prog2: weight2, ...}
     held = {}  # Format: {prog1: [prog2, prog3, ...], ...}
@@ -40,28 +33,47 @@ def minority(elms) -> int:
     elm_count = {}  # Format: {value: count}
     for elm in elms:
         elm_count[elm] = elm_count.get(elm, 0) + 1
-    if elms[0] * len(elms) == sum(elm_count.values()):  # No minority
-        return None
+    last_count = None
+    for count in elm_count.values():
+        if last_count is None:
+            last_count = count
+        if count != last_count:
+            break
+    else:
+        return None  # No minority available
     return min(elms, key=lambda elm: elm_count[elm])
 
 
-def get_weight(prog_name, held, weight):
+def get_weight(prog_name, held, weight_data):
     if prog_name in held:
         progs = held[prog_name]
-        return sum(map(lambda prog: get_weight(prog, held, weight), progs))
+        return weight_data[prog_name] + sum(map(lambda prog: get_weight(prog, held, weight_data), progs))
     else:
-        return weight[prog_name]
+        return weight_data[prog_name]
 
 
 def solve_part_2(puzzle_input):
-    prog_toplevel, held, weight = parse_data(puzzle_input)
+    prog_toplevel, held, weight_data = parse_data(puzzle_input)
     # Strip all empty lists from 'held':
     for prog_name in tuple(held.keys()):
         if len(held[prog_name]) is 0:
             del held[prog_name]
-    for progs_on_disk in held.values():
-        weights = tuple(get_weight(prog) for prog in progs_on_disk)
-        fault = minority(weights)
-        if fault:
-            
+    if True:
+        progs = held[prog_toplevel]
+        weights = tuple(get_weight(prog, held, weight_data) for prog in progs)
+        fault, fault_prog = minority(weights), None
+        correct_weight = None
+        if fault is not None:  # Find faulty program
+            log('--------------------')
+            for prog, weight in zip(progs, weights):
+                log('%s: %d' %(prog, weight))
+                if weight == fault:
+                    fault_prog = prog
+                else:
+                    correct_weight = weight
+            weight_self = weight_data[fault_prog]
+            diff = fault - correct_weight
+            corr = weight_self - diff
+            log('%s has a faulty weight of %d.' % (fault_prog, fault))
+            return corr
     return None
