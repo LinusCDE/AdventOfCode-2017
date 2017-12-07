@@ -15,8 +15,8 @@ def parse_data(puzzle_input: str) -> tuple:
     which other towers (non-recursive!).
     - The second dicts contains the weight of each tower but NOT the sub-towers.
     '''
-    weight_data = {}  # Format: {tower1, weight1, tower2: weight2, ...}
-    held_data = {}  # Format: {tower1: [progtower2, tower3, ...], ...}
+    weight_data = {}  # Format: {tower1: weight1, tower2: weight2, ...}
+    held_data = {}  # Format: {tower1: [tower2, tower3, ...], ...}
     for line in puzzle_input.split('\n'):
         tower_name, holding = None, []
         if ' -> ' in line:
@@ -33,13 +33,13 @@ def parse_data(puzzle_input: str) -> tuple:
 
 
 def root_tower_name(held_data: dict) -> str:
-    possibles = list(held_data.keys())
-    for holding in held_data.values():
-        for tower in holding:
-            possibles.remove(tower)
-    if len(possibles) is not 1:
-        raise Exception('Failed to find root-tower!')
-    return possibles[0]
+    '''Returns the name of the root tower.'''
+    impossible = set()  # The root tower can't be in there
+    for towers in held_data.values():
+        impossible.update(towers)
+    possible = set(held_data.keys())  # This are possible
+    # 'possible' should contain excatly one element that 'impossible' doesn't:
+    return possible.difference(impossible).pop()
 
 
 def solve_part_1(puzzle_input):
@@ -47,17 +47,17 @@ def solve_part_1(puzzle_input):
     return root_tower_name(held_data)
 
 
-def minority(elms) -> int:
+def minority(elements) -> int:
     '''Finds the minority and returns the index of its first occurrence.
     If there is no miority, 'None' will be returned.
     '''
-    if len(elms) is 0:
+    if len(elements) is 0:
         return None
-    elm_count = {}  # Format: {value: count}
-    for elm in elms:
-        elm_count[elm] = elm_count.get(elm, 0) + 1
+    element_count = {}  # Format: {value: count}
+    for element in elements:
+        element_count[element] = element_count.get(element, 0) + 1
     last_count = None
-    for count in elm_count.values():
+    for count in element_count.values():
         if last_count is None:
             last_count = count
         if count != last_count:
@@ -65,7 +65,7 @@ def minority(elms) -> int:
     else:
         return None  # No minority available
     # Return the index of the element whose value was found least often:
-    return elms.index(min(elms, key=lambda elm: elm_count[elm]))
+    return elements.index(min(elements, key=lambda elm: element_count[elm]))
 
 
 class Tower:
