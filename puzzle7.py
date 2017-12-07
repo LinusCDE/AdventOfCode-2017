@@ -1,36 +1,50 @@
-import json
+log = None
 
 
 def parse_data(puzzle_input: str) -> tuple:
-    weight = {}  # Format: {prog1, weight1, prog2: weight2, ...}
-    held = {}  # Format: {prog1: [prog2, prog3, ...], ...}
+    '''Extracts all data from puzzle_input.
+
+    Returns a tuple which contains two lists:
+    - The first ('held_data') has all information for which tower/program bears
+    which other towers (non-recursive!).
+    - The second dicts contains the weight of each tower but NOT the sub-towers.
+    '''
+    weight_data = {}  # Format: {tower1, weight1, tower2: weight2, ...}
+    held_data = {}  # Format: {tower1: [progtower2, tower3, ...], ...}
     for line in puzzle_input.split('\n'):
-        prog_name, holding = None, []
+        tower_name, holding = None, []
         if ' -> ' in line:
             line = line.split(' -> ')
-            prog_name = line[0]
+            tower_name = line[0]
             holding = line[1].split(', ') if ', ' in line[1] else [line[1]]
         else:
-            prog_name = line.strip()
-        splitted = prog_name.split(' (')
-        prog_name = splitted[0]
-        held[prog_name] = holding
-        weight[prog_name] = int(splitted[1][:-1])
+            tower_name = line.strip()
+        splitted = tower_name.split(' (')
+        tower_name = splitted[0]
+        held_data[tower_name] = holding
+        weight_data[tower_name] = int(splitted[1][:-1])
+    return held_data, weight_data
 
-    possibles = list(held.keys())
-    for holding in held.values():
-        for prog in holding:
-            possibles.remove(prog)
+
+def root_tower_name(held_data: dict) -> str:
+    possibles = list(held_data.keys())
+    for holding in held_data.values():
+        for tower in holding:
+            possibles.remove(tower)
     if len(possibles) is not 1:
-        raise Exception('Only one remaining program expected!')
-    return possibles[0], held, weight
+        raise Exception('Failed to find root-tower!')
+    return possibles[0]
 
 
 def solve_part_1(puzzle_input):
-    return parse_data(puzzle_input)[0]
+    held_data = parse_data(puzzle_input)[0]
+    return root_tower_name(held_data)
 
 
 def minority(elms) -> int:
+    '''Finds the minority and returns the index of its first occurrence.
+    If there is no miority, 'None' will be returned.
+    '''
     if len(elms) is 0:
         return None
     elm_count = {}  # Format: {value: count}
@@ -44,56 +58,94 @@ def minority(elms) -> int:
             break
     else:
         return None  # No minority available
-    return min(elms, key=lambda elm: elm_count[elm])
+    # Return the index of the element whose value was found least often:
+    return elms.index(min(elms, key=lambda elm: elm_count[elm]))
 
 
-def get_weight_sum(prog_name, held, weight_data):
-    if len(held[prog_name]) > 0:
-        progs = held[prog_name]
-        sub_progs_sum = sum(map(lambda prog: get_weight_sum(prog, held, weight_data), progs))
-        return weight_data[prog_name] + sub_progs_sum
-    else:
-        return weight_data[prog_name]
+class Tower:
+    '''Representation of the Towers in the puzzle. For easier understanding
+    the towers have the names of the programs supporting them.
+    '''
+
+    def __init__(self, name: str, weight: int,
+                 parent: 'Tower'=None, sub_towers=[]):
+        self.name = name
+        self.weight = weight
+        self.parent = parent  # <- For the root tower this will be: None
+        self.sub_towers = sub_towers  # <- The towers 'on the disk'
+        self.__total_weight_cached = None
+
+        if parent is not None:
+            parent.__total_weight_cached = None
+
+    def total_weight(self) -> int:
+        '''Returns the total weight bearing on this tower
+        (own weight + weight of all sub-towers and their sub-towers, ...)
+        '''
+        # Compute value if not cached:
+        if self.__total_weight_cached is None:
+            sub_towers_weight = sum(map(lambda tower: tower.total_weight(),
+                                        self.sub_towers))
+            self.__total_weight_cached = self.weight + sub_towers_weight
+        return self.__total_weight_cached
+
+    def find_unbalanced_tower(self, default=None) -> 'Tower':
+        '''Returns either a unbalanced sub-sub-...-tower or default.'''
+        sub_towers = self.sub_towers
+        # Generate tuple of the total weight of all sub towers
+        sub_towers_weight = tuple(map(lambda t: t.total_weight(), sub_towers))
+        index = minority(sub_towers_weight)
+        if index is None:
+            return default  # No faults in the sub-towers
+
+        suspect = sub_towers[index]
+        # Either the tower (suspect) says that the misbalance is someone
+        # elses fault or he is it himself:
+        unbalanced = suspect.find_unbalanced_tower(default=suspect)
+        return unbalanced
+
+    def __str__(self):
+        return '%s (%d)' % (self.name, self.weight)
 
 
-def to_node(prog_name, held, weight_data, attach_to=dict()):
-    result = {}
+def data_to_tower(name: str, held_data: dict,
+                  weight_data: dict, parent: Tower=None) -> Tower:
+    '''Gets a Tower by name with all sub-towers assigned recursivly.'''
+    if name not in held_data:  # No sub-towers available
+        return Tower(name, weight_data[name], parent=parent)
 
-    # Add Weight info:
-    total_weight = get_weight_sum(prog_name, held, weight_data)
-    self_weight = weight_data[prog_name]
-    result['WEIGHT'] = self_weight
-    if self_weight != total_weight:
-        result['TOTAL_WEIGHT'] = total_weight
+    sub_towers = []
+    tower = Tower(name, weight_data[name], sub_towers=sub_towers, parent=parent)
 
-    # Add Subprograms recursivly:
-    sub_progs = held.get(prog_name, [])
-    sub_progs_weights = list()
-    for sub_prog in sub_progs:
-        to_node(sub_prog, held, weight_data, attach_to=result)
-        if isinstance(result[sub_prog], dict):
-            sub_dat = result[sub_prog]
-            sub_progs_weights.append(sub_dat['TOTAL_WEIGHT'] if 'TOTAL_WEIGHT' in sub_dat else sub_dat['WEIGHT'])
-        elif isinstance(result[sub_prog], int):
-            sub_progs_weights.append(result[sub_prog])
-        else:
-            sub_progs_weights.append(int(result[sub_prog].split(' / ')[1]))
-    if minority(sub_progs_weights) is not None:
-        result['UNBLANCED'] = True
-    else:
-        result = '%d / %d' % (self_weight, total_weight)
+    for sub_tower in held_data[name]:
+        sub_towers.append(data_to_tower(sub_tower, held_data,
+                                        weight_data, parent=tower))
 
-    # Only weight as value if no recursion available:
-    if isinstance(result, dict) and len(result) is 1:
-        result = result['WEIGHT']
-
-    # Attach to given dict:
-    attach_to[prog_name] = result
-    return attach_to
+    return tower
 
 
 def solve_part_2(puzzle_input):
-    prog_toplevel, held, weight_data = parse_data(puzzle_input)
-    structure = to_node(prog_toplevel, held, weight_data)
-    print('"%s":' % prog_toplevel)
-    print(json.dumps(structure[prog_toplevel], indent=4, sort_keys=False))
+    held_data, weight_data = parse_data(puzzle_input)  # Data parsed as lists
+
+    tower_root_name = root_tower_name(held_data)  # Name of the root-tower
+    tower_root = data_to_tower(tower_root_name, held_data, weight_data)
+
+    misbalanced = tower_root.find_unbalanced_tower()  # <- HE IS IT!
+    if misbalanced is None:
+        raise Exception('Failed to find the misbalanced tower!')
+
+    # Find correct weight of the tower 'misbalanced':
+    expected_total_weight = None
+    for neighbor in misbalanced.parent.sub_towers:
+        if neighbor.total_weight() != misbalanced.total_weight():
+            expected_total_weight = neighbor.total_weight()
+            break
+    else:
+        raise Exception('Failed to get the expected weight.')
+
+    # Weight of all the stuff the tower 'misplaced' is carrying:
+    sub_weight = misbalanced.total_weight() - misbalanced.weight
+    # The correct weight is the expected weight (total) minus the 'sub_weight':
+    correct_weight = expected_total_weight - sub_weight
+    log('Tower/Program with the wrong weight: %s' % misbalanced)
+    return correct_weight
