@@ -1,7 +1,11 @@
 from io import StringIO
 
 
+garbage = 0
+
+
 def discard_garbage(input_string):
+    global garbage
     discarding, ignore_next = False, False
     for char in input_string:
         if ignore_next:
@@ -10,8 +14,11 @@ def discard_garbage(input_string):
         if char is '!':
             ignore_next = True
             continue
+        if discarding and char is not '>':
+            garbage += 1
         if char is '<':
             discarding = True
+            continue
         if not discarding:
             yield char
         if char is '>':
@@ -30,4 +37,6 @@ def solve_part_1(puzzle_input):
 
 
 def solve_part_2(puzzle_input):
-    pass
+    for _ in discard_garbage(puzzle_input):
+        pass
+    return garbage
