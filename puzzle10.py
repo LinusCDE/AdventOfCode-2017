@@ -1,75 +1,61 @@
 def complex_reverse(elements: list, index: int, length: int):
+    '''Reverses a specified sub-list in 'elements'.'''
     size = len(elements)
-    first, last = index, index + (length-1)
-    first %= size
-    last %= size
+    first, last = index % size, (index + (length-1)) % size
     for _ in range(length // 2):
         elements[first], elements[last] = elements[last], elements[first]
-        first += 1
-        last -= 1
-        first %= size
+        first = (first + 1) % size
+        last -= 1  # Negative numbers (such as -1, -2) are fine in python
+
+
+def gen_knot(lengths: list, rounds: int = 1):
+    '''Generates the knot with given 'lenghts' and 'rounds'.'''
+    knot = list(range(256))  # List to be processed
+    knot_len = len(knot)  # Just to be safe. Will be 256
+    skip, cursor = 0, 0
+    for _ in range(rounds):
+        for length in lengths:
+            complex_reverse(knot, cursor, length)
+            cursor += length + skip
+            skip += 1
+            # Prevent unneccessary slowdown in part 2:
+            cursor, skip = cursor % knot_len, skip % knot_len
+    return knot
 
 
 def solve_part_1(puzzle_input):
     lengths = map(int, puzzle_input.split(','))
-    numbers = list(range(256))
-    skip_size = 0
-    current_index = 0
-    for length in lengths:
-        #print(','.join(map(str, numbers)))
-        #print(current_index*2*' ' + '-')
-        complex_reverse(numbers, current_index, length)
-        current_index += length + skip_size
-        skip_size += 1
-        current_index %= len(numbers)
-        skip_size %= len(numbers)
-    return numbers[0] * numbers[1]
+    knot = gen_knot(lengths)
+    return knot[0] * knot[1]
 
 
-def ascii_list_of(string: str) -> list:
+def ascii_codes(string: str) -> list:
+    '''Returns the ascii-codes of each character as list.'''
     return list(map(ord, string))
 
 
-def xor_of(elements: list) -> int:
+def xor_all(elements: list) -> int:
+    '''Returns the combined xor-result of each element in the list 'elements'
+    Note that 'elements' is expected to be filled only with ints.
+    '''
     value = 0  # It is save to operate with 0 for the first time
     for element in elements:
-        value ^= element
+        value ^= element  # Xor with last xor-result
     return value
 
 
 def safe_hex(number: int) -> str:
+    '''Adds a leading 0 and removes the '0x'-prefix from the hex()-function.'''
     hex_str = hex(number)[2:]
     return ('0' if len(hex_str) is 1 else '') + hex_str
 
 
-def hash_of(numbers: list) -> str:
-    return ''.join(map(safe_hex, numbers))
-
-
 def solve_part_2(puzzle_input):
-    lengths = ascii_list_of(puzzle_input) + [17, 31, 73, 47, 23]
-    print(lengths)
-    #print('Lengths: %s' % lengths)
-    skip_size = 0
-    current_index = 0
-    numbers = list(range(256))
-    for rnd in range(1, 64+1):
-        print('Round: %d' % rnd)
-        #print('Rnd: %d, Index: %d, Skip: %d' % (rnd, current_index, skip_size))
-        len_numbers = len(numbers)
-        for length in lengths:
-            #print(length)
-            complex_reverse(numbers, current_index, length)
-            current_index += length + skip_size
-            skip_size += 1
-            if skip_size >= len_numbers:
-                skip_size %= len_numbers
-            if current_index >= len_numbers:
-                current_index %= len_numbers
-            #print(hashlib.md5(str(numbers)).hexdigest())
-        #print(current_index, skip_size)
-        #print(numbers)
-    sparse_hash = []
-    for index in map(lambda part: part * 16, range(16)):
-        sparse_hash.append(xor_of(numbers[index:index+16]))
-    return hash_of(sparse_hash)
+    # Get lengths as accii-codes and append the given suffix:
+    lengths = ascii_codes(puzzle_input) + [17, 31, 73, 47, 23]
+    knot = gen_knot(lengths, rounds=64)
+    # Generates the dense hash:
+    dense_hash = [xor_all(knot[index:index+16])
+                  for index in map(lambda part: part * 16, range(16))]
+    # Hex all values of the dense hash together:
+    return ''.join(map(safe_hex, dense_hash))
