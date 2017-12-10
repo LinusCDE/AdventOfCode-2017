@@ -1,17 +1,18 @@
 def complex_reverse(elements: list, index: int, length: int):
     '''Reverses a specified sub-list in 'elements'.'''
-    size = len(elements)
-    first, last = index % size, (index + (length-1)) % size
+    size = len(elements)  # To save some computation time
+    first, last = index, (index + (length-1)) % size
     for _ in range(length // 2):
+        # Swap first and last elements:
         elements[first], elements[last] = elements[last], elements[first]
-        first = (first + 1) % size
+        first = (first + 1) % size  # Forward one step
         last -= 1  # Negative numbers (such as -1, -2) are fine in python
 
 
 def gen_knot(lengths: list, rounds: int = 1):
     '''Generates the knot with given 'lenghts' and 'rounds'.'''
     knot = list(range(256))  # List to be processed
-    knot_len = len(knot)  # Just to be safe. Will be 256
+    knot_size = len(knot)  # Just to be safe. Will be 256
     skip, cursor = 0, 0
     for _ in range(rounds):
         for length in lengths:
@@ -19,7 +20,7 @@ def gen_knot(lengths: list, rounds: int = 1):
             cursor += length + skip
             skip += 1
             # Prevent unneccessary slowdown in part 2:
-            cursor, skip = cursor % knot_len, skip % knot_len
+            cursor, skip = cursor % knot_size, skip % knot_size
     return knot
 
 
