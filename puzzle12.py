@@ -2,8 +2,8 @@ class Program:
     '''Representation of a program in the puzzle (day) 12 for AoC 2017.'''
 
     def __init__(self, identifier: int):
-        self.identifier = identifier  # program id
-        self.connected = set()  # Direct connections to other Program-instances
+        self.identifier = identifier
+        self.connected = set()  # Containing other Program-instances
         self._hash = identifier  # Value of __hash__() should never change
 
     def connect(self, other_prog: 'Program', allow_reconnect=True):
@@ -53,13 +53,13 @@ class Program:
 def load_programs(puzzle_input) -> dict:
     '''Load all programs and their direct connections
     from the puzzle input.'''
-    programs = {}  # Format {id: Program(id)}
+    programs = {}  # Format: {id: Program(id)}
 
     def get_or_create(prog_id):
         '''Returns the program instance or creates stores and
         returns a new one.
         If the 'prog_'id' is a str. I'll be converted to an int'''
-        if isinstance(prog_id, str):  # Is given as an str?
+        if isinstance(prog_id, str):
             prog_id = int(prog_id)
         # At this point, 'prog_id' should be an int.
         if prog_id not in programs:
@@ -79,20 +79,18 @@ def load_programs(puzzle_input) -> dict:
 
 def solve_part_1(puzzle_input):
     progs = load_programs(puzzle_input)  # Programs indexed by id
-    return len(progs[0].find_reachables())  # All Programs, Prog 0 can reach
+    return len(progs[0].find_reachables())
 
 
 def solve_part_2(puzzle_input):
     progs = load_programs(puzzle_input)  # Programs indexed by id
-    groups = 0  # Total of different groups found (part 2 solution)
-    found_pool = set()  # Found Programs (could contain program ids, too)
+    different_groups_total = 0
+    found_pool = set()  # Remember all Programs that already belong to a group
     for prog in progs.values():
-        # Check if aProgram already belongs to a group:
         if prog.identifier in found_pool:
             continue  # Belongs to a group
-        groups += 1  # Doesn't belong to a group, yet
+        different_groups_total += 1
 
-        # Add group to pool of found programs:
         found_pool.add(prog)
-        found_pool.update(map(lambda p: p.identifier, prog.find_reachables()))
-    return groups
+        found_pool.update(prog.find_reachables())
+    return different_groups_total
