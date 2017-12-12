@@ -41,13 +41,13 @@ class Program:
         - The Program has an equal identifier to comparing int. E.g.:
           - Program(6) == 6 » True
         '''
-        if self is other:
-            return True
-        elif isinstance(other, Program):
+
+        if isinstance(other, Program):
             return self.identifier == other.identifier
         elif isinstance(other, int):
             return self.identifier == other
-        return False
+
+        return (self is other)
 
 
 def load_programs(puzzle_input) -> dict:
@@ -59,21 +59,24 @@ def load_programs(puzzle_input) -> dict:
         '''Returns the program instance or creates stores and
         returns a new one.
         If the 'prog_'id' is a str. I'll be converted to an int'''
+
         if isinstance(prog_id, str):
             prog_id = int(prog_id)
+
         # At this point, 'prog_id' should be an int.
         if prog_id not in programs:
             programs[prog_id] = Program(prog_id)
         return programs[prog_id]
 
-    # Loop through all connections:
     for line in puzzle_input.split('\n'):
         sp = line.replace(' <-> ', ', ').split(', ')
-        prog = get_or_create(sp[0])  # Program
-        others = map(get_or_create, sp[1:])  # To be connected with
-        # Connect to other programs
+        prog = get_or_create(sp[0])
+        others = map(get_or_create, sp[1:])
+
+        # Connects 'prog' to the other ones ('others'):
         for other in others:
             prog.connect(other)
+
     return programs
 
 
