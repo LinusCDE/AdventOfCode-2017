@@ -4,7 +4,7 @@ class Layer:
         self.depth, self.range = depth, layer_range
         self.position, self.direction = 0, 1
 
-    def tick(self, steps=1):
+    def tick(self, steps: int=1):
         if steps == 0:
             return
         if self.direction == 1 and self.position == (self.range-1):
@@ -27,7 +27,7 @@ class Firewall:
             self.layers[depth] = Layer(depth, layer_range)
             self.max_depth = max(self.max_depth, depth)
 
-    def tick(self):
+    def tick(self, steps: int=1):
         for layer in self.layers.values():
             layer.tick()
 
@@ -37,16 +37,27 @@ class Firewall:
 
         return self.layers[depth].position != 0
 
+    def reset(self):
+        for layer in self.layers.values():
+            layer.direction = 1
+            layer.position = 0
 
-def solve_part_1(puzzle_input):
-    firewall = Firewall(puzzle_input)
-    serverity = 0
+
+def pass_through(firewall: Firewall):
+    caught, serverity = False, 0
     for depth in range(firewall.max_depth + 1):
         if not firewall.can_pass(depth):
+            caught = True
             serverity += (depth * firewall.layers[depth].range)
         firewall.tick()
-    return serverity
+    return caught, serverity
+
+
+def solve_part_1(puzzle_input):
+    return pass_through(Firewall(puzzle_input))[1]
 
 
 def solve_part_2(puzzle_input):
-    pass
+    passed = False
+    while not passed:
+        
