@@ -19,7 +19,7 @@ class Firewall:
             self.max_depth = max(self.max_depth, depth)
 
     def tick(self):
-        '''Increments one tick.'''
+        '''Just increments one tick.'''
         self.ticks += 1
 
     def layer_position(self, depth) -> int:
