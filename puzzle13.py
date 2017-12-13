@@ -4,13 +4,17 @@ class Layer:
         self.depth, self.range = depth, layer_range
         self.position, self.direction = 0, 1
 
-    def tick(self):
+    def tick(self, steps=1):
+        if steps == 0:
+            return
         if self.direction == 1 and self.position == (self.range-1):
             self.direction = -1
         elif self.direction == -1 and self.position == 0:
             self.direction = 1
 
         self.position += self.direction
+        if steps > 1:
+            self.tick(steps - 1)
 
 
 class Firewall:
