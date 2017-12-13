@@ -5,28 +5,18 @@ class Layer:
 
     def __init__(self, depth: int, layer_range: int):
         self.depth, self.range = depth, layer_range
-        self.position, self.direction = 0, 1
 
-    def tick(self, steps=1, backwards=False):
-        if steps == 0:
-            return
-        direction = self.direction * -1 if backwards else self.direction
-        if direction == 1 and self.position == (self.range-1):
-            direction = -1
-            self.direction *= -1
-        elif direction == -1 and self.position == 0:
-            direction = 1
-            self.direction *= -1
-
-        self.position += direction
-        if steps > 1:
-            self.tick(steps - 1, backwards=backwards)
+    def position(self, ticks: int):
+        '''
+        Source: https://stackoverflow.com/a/11544567/3949509
+        '''
+        input_range = self.range - 1
+        return abs(((ticks + input_range) % (input_range * 2)) - input_range)
 
 
 class Firewall:
 
     def __init__(self, puzzle_input: str):
-        self.tick_checkpoint = 0
         self.ticks = 0
         self.layers = {}  # Format: {depth: Layer(...)}
         self.max_depth = 0
@@ -35,18 +25,14 @@ class Firewall:
             self.layers[depth] = Layer(depth, layer_range)
             self.max_depth = max(self.max_depth, depth)
 
-    def tick(self, steps: int=1, backwards: bool=False):
-        self.ticks += -steps if backwards else steps
-        for layer in self.layers.values():
-            for _ in range(steps):
-                layer.tick(1, backwards)
-        self.ticks += -steps if backwards else steps
+    def tick(self, steps: int=1):
+        self.ticks += steps
 
     def can_pass(self, depth: int) -> bool:
         if depth not in self.layers:
             return True
 
-        return self.layers[depth].position != 0
+        return self.layers[depth].position(self.ticks) != 0
 
     def reset(self):
         for layer in self.layers.values():
@@ -59,12 +45,15 @@ class Firewall:
             pos[layer.depth] = layer.position
         return pos
 
-    def save(self):
-        self.tick_checkpoint = self.ticks
 
-    def rollback(self):
-        diff = self.ticks - self.tick_checkpoint
-        self.tick(diff, backwards=True)
+def load(puzzle_input):
+    max_depth = 0
+    layers = {}  # Format: {depth: {pos: int, dir: int, range: int}, ...}
+    for line in puzzle_input.split('\n'):
+        depth, layer_range = map(int, line.split(': '))
+        layers[depth] = {'pos': 0, 'dir': 1, 'range': layer_range}
+        max_depth = max(max_depth, depth)
+    return max_depth, layers
 
 
 def solve_part_1(puzzle_input):
@@ -87,13 +76,7 @@ def caught_and_reset(firewall: Firewall) -> int:
 
 def solve_part_2(puzzle_input):
     firewall = Firewall(puzzle_input)
-    for delay in count():
-        firewall.tick(delay)
-        print('Ticks: %d' % firewall.ticks)
-        firewall.save()
-        if delay % 100 == 0:
-            print(delay)
+    for ticks_delayed in count():
+        firewall.ticks = ticks_delayed
         if not caught_and_reset(firewall):
-            return delay
-        firewall.rollback()
-        print('RB: %d' % firewall.ticks)
+            return ticks_delayed
