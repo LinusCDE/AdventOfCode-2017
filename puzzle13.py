@@ -1,5 +1,8 @@
 from itertools import count
 
+print('Hint: Run this puzzle with \'pypy3\' to get improved performance '
+      'in part 2')
+
 
 class Firewall:
     '''Representation of the firewall in the puzzle.'''
