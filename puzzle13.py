@@ -45,7 +45,7 @@ def solve_part_1(puzzle_input):
 
 
 def caught(firewall: Firewall) -> bool:
-    '''Checks if the program would be caught in the 'firewall'.'''
+    '''Returns whether you would get caught in the 'firewall'.'''
     for depth in range(firewall.max_depth + 1):
         if firewall.layer_position(depth) == 0:
             return True
