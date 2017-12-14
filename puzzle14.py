@@ -1,89 +1,68 @@
 from coordinate_utils import CoordinateField
-from io import StringIO
 from puzzle10 import solve_part_2 as gen_knot_hash
 
 
-def char_to_bits(char: str) -> str:
-    if len(char) != 1:
-        raise Exception('Given char must be excalty one!')
-    byte = int(char, 16).to_bytes(1, 'big')
-    # Source: https://stackoverflow.com/a/41436816/3949509
-    return ''.join('{0:04b}'.format(byte[0]))
-
-
-def string_to_bits(string: str) -> str:
-    out = StringIO()
+def to_bits(string: str):
+    '''Yields the bits for each char. Asuming the char in the string are
+    hexadecimal (0-F).'''
     for char in string:
-        out.write(char_to_bits(char))
-    value = out.getvalue()
-    out.close()
-    return value
+        # Source for next line: https://stackoverflow.com/a/41436816/3949509
+        byte = int(char, 16).to_bytes(1, 'big')
+        yield ''.join('{0:04b}'.format(byte[0]))
 
 
-def solve_part_1(hash_prefix):
-    free = 0
+def disk_bits(hash_prefix):
+    '''Yields 128 bit strings for the disk using given 'hash_prefix'.'''
     for hash_suffix in range(128):
-        hash_str = '%s-%s' % (hash_prefix, hash_suffix)
-        knot_hash = gen_knot_hash(hash_str)
-        bits = string_to_bits(knot_hash)
+        # Generate knot-hash from day 10 part 2 and convert to bits:
+        knot_hash = gen_knot_hash('%s-%s' % (hash_prefix, hash_suffix))
+        bits = ''.join(to_bits(knot_hash))
+
         if len(bits) != 128:
-            raise Exception('Unexpected lenght! (%d)' % len(bits))
-        for bit in filter(lambda bit: bit == '1', bits):
+            raise Exception('Unexpected lenght! (%d != 128)' % len(bits))
+        yield bits
+
+
+def solve_part_1(puzzle_input):
+    free = 0
+    for bits in disk_bits(puzzle_input):
+        for _ in filter(lambda bit: bit != '0', bits):
             free += 1
     return free
 
 
-class Groupifier:
+def count_group(field: CoordinateField, pos: tuple) -> int:
+    '''Finds a group recursivly and returns the amount of found
+    coordinates.'''
+    if field[pos] != 1:  # Skip grouped (= 'None') and 0s
+        return 0
 
-    def __init__(self, field: CoordinateField):
-        self.field = field
-        self.group_count = 0
-        self.group_sizes = dict()  # Format: {id1: count1, ...}
-        self.ids = CoordinateField(field.min_x, field.max_x,
-                                   field.min_y, field.max_y)
+    del field[pos]  # Remove found/grouped numbers
+    found = 1
 
-    def index_group(self, new_index, x, y) -> int:
-        if self.field[x, y] != 1 or self.ids.filled((x, y)):
-            return 0
-        self.ids[x, y] = new_index
-        indexed = 1
-        for adj_x, adj_y in self.field.adjectents((x, y), diagonals=False):
-            indexed += self.index_group(new_index, adj_x, adj_y)
-        return indexed
-
-    def groupify(self):
-        total = 0
-        for x, y in self.field.coordinates(only_existing=False):
-            indexed = self.index_group(self.group_count, x, y)
-            total += indexed
-            if indexed > 0:
-                self.group_count += 1
-                self.group_sizes[self.group_count-1] = indexed
-        self.print_all_coords(10, 10)
-        print(self.group_sizes)
-        print(total)
-
-    def print_all_coords(self, x_max, y_max):
-        for x in range(x_max):
-            for y in range(y_max):
-                val = str(self.ids[x, y])
-                while len(val) < 4:
-                    val = ' ' + val
-                print(val + '|', end='')
-            print('')
+    # Search for nearby coordinates recursivly:
+    for adjecent in field.adjectents(pos, diagonals=False):
+        found += count_group(field, adjecent)
+    return found
 
 
-def solve_part_2(hash_prefix):
-    field = CoordinateField(0, 127, 0, 127)
-    for hash_suffix_and_y in range(128):
-        hash_str = '%s-%s' % (hash_prefix, hash_suffix_and_y)
-        knot_hash = gen_knot_hash(hash_str)
-        bits = string_to_bits(knot_hash)
-        if len(bits) != 128:
-            raise Exception('Unexpected lenght! (%d)' % len(bits))
-        for x, bit in enumerate(bits):
-            field[x][hash_suffix_and_y] = int(bit)
+def groups(field):
+    group_count = 0
+    field = field.copy()  # Copy field, since grouped coordinates are removed
 
-    groupifier = Groupifier(field)
-    groupifier.groupify()
-    return groupifier.group_count
+    # Search for groups:
+    for pos in field.coordinates(only_existing=False):
+        if count_group(field, pos) > 0:
+            group_count += 1
+    return group_count
+
+
+def solve_part_2(puzzle_input):
+    field = CoordinateField(0, 127, 0, 127)  # 128x128
+
+    # Filling coordinate field with 1s and 0s:
+    for y, bits in enumerate(disk_bits(puzzle_input)):
+        for x, bit in enumerate(map(int, bits)):
+            field[x, y] = bit
+
+    return groups(field)

@@ -46,7 +46,7 @@ class SecondDimension:
         self._y_values[y] = value
 
     def __delitem__(self, y: int):
-        self.__ensure_int_and_in_field()
+        self.__ensure_int_and_in_field(y)
 
         if y in self._y_values:  # No error will be raised if 'y' didn't exist.
             del self._y_values[y]
@@ -144,7 +144,7 @@ class CoordinateField:
         self[pos[0]][pos[1]] = value
 
     def __delitem__(self, pos):
-        self._ensure_position_syntax_and_in_field()
+        self._ensure_position_syntax_and_in_field(pos)
         del self[pos[0]][pos[1]]
 
     def __getitem__(self, key):
@@ -253,7 +253,7 @@ class CoordinateField:
         The default 'radius' is 1, which are the direct neighbours
         surrounding 'pos'.
         '''
-        self._ensure_position_syntax_and_in_field()
+        self._ensure_position_syntax_and_in_field(pos)
         source_x, source_y = pos
 
         for offset_x in range(-radius, radius + 1):
