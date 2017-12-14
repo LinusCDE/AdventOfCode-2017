@@ -3,7 +3,7 @@ from puzzle10 import solve_part_2 as gen_knot_hash
 
 
 def to_bits(string: str):
-    '''Yields the bits for each char. Asuming the char in the string are
+    '''Yields the bits for each char. Asuming the chars in the string are
     hexadecimal (0-F).'''
     for char in string:
         # Source for next line: https://stackoverflow.com/a/41436816/3949509
@@ -19,7 +19,7 @@ def disk_bits(hash_prefix):
         bits = ''.join(to_bits(knot_hash))
 
         if len(bits) != 128:
-            raise Exception('Unexpected lenght! (%d != 128)' % len(bits))
+            raise Exception('Unexpected length! (%d != 128)' % len(bits))
         yield bits
 
 
@@ -40,7 +40,7 @@ def count_group(field: CoordinateField, pos: tuple) -> int:
     del field[pos]  # Remove found/grouped numbers
     found = 1
 
-    # Search for nearby coordinates recursivly:
+    # Search for adjecent coordinates recursivly:
     for adjecent in field.adjectents(pos, diagonals=False):
         found += count_group(field, adjecent)
     return found
