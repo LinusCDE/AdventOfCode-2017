@@ -281,3 +281,10 @@ class CoordinateField:
         x, y = pos  # Unpack x- and y-coordinates from 'pos'
         if x in self._x_layers:
             return self[x].filled(y)
+
+    def copy(self):
+        '''Returns a copy of this coordinate field.'''
+        copy = CoordinateField(self.min_x, self.max_x, self.min_y, self.max_y)
+        for x, y, value in self.items():
+            copy[x][y] = value
+        return copy
