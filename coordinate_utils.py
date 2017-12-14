@@ -37,7 +37,7 @@ class SecondDimension:
         return self.get(y)
 
     def __setitem__(self, y: int, value):
-        self.__ensure_int_and_in_field()
+        self.__ensure_int_and_in_field(y)
 
         if value is None:
             del self[y]  # Setting to 'None' is basically deleting
