@@ -288,3 +288,14 @@ class CoordinateField:
         for x, y, value in self.items():
             copy[x][y] = value
         return copy
+
+    def get(self, pos, default=None):
+        '''Gets value for position. If not filled, 'default' will be returned.
+        Prevents the creation of more entries, if not found.
+        '''
+        self._ensure_position_syntax(pos)
+        x, y = pos
+
+        if x not in self._x_layers:
+            return default
+        return self[x].get(y, default=default)
