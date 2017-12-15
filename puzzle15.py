@@ -12,7 +12,7 @@ def generator(value: int, factor: int):
 
 def parse_start_values(puzzle_input):
     '''Parses the start-values from the 'puzzle_input'.
-    Optionally the syntax 'NumberA,Number2' is supported.
+    Optionally the syntax 'NumberA,NumberB' is supported.
     '''
 
     if '\n' in puzzle_input:  # Multiline input:
@@ -28,7 +28,7 @@ def count(generator_a, generator_b, cycles):
     '''Returns how often the judge successfully found fitting last 16 bits.'''
     count = 0  # The count
 
-    for index, num_a, num_b in zip(range(cycles), generator_a, generator_b):
+    for _, num_a, num_b in zip(range(cycles), generator_a, generator_b):
         if (num_a & 0xFFFF) == (num_b & 0xFFFF):
             count += 1
 
