@@ -17,21 +17,21 @@ def lowest_16_bits(iterateable):
             yield bits
 
 
-def solve_part_1(puzzle_input):
+def parse_start_values(puzzle_input):
     start_a, start_b = -1, -1
     if '\n' in puzzle_input:
         lines = puzzle_input.split('\n')
         start_a, start_b = lines[0].split()[4], lines[1].split()[4]
     else:
         start_a, start_b = puzzle_input.replace(' ', '').split(',')
-    start_a, start_b = map(int, (start_a, start_b))
 
+    return map(int, (start_a, start_b))
+
+
+def count(bit_gen_a, bit_gen_b):
     count = 0
 
-    gen_bits_a = lowest_16_bits(generator(start_a, FACTOR_A))
-    gen_bits_b = lowest_16_bits(generator(start_b, FACTOR_B))
-
-    for index, gen_a, gen_b in zip(range(40000000), gen_bits_a, gen_bits_b):
+    for index, gen_a, gen_b in zip(range(40000000), bit_gen_a, bit_gen_b):
         if index % 1000000 == 0:
             print(index)
         if len(gen_a) > len(gen_b) and gen_a.endswith(gen_b):
@@ -42,5 +42,21 @@ def solve_part_1(puzzle_input):
     return count
 
 
+def solve_part_1(puzzle_input):
+    start_a, start_b = parse_start_values(puzzle_input)
+
+    bit_gen_a = lowest_16_bits(generator(start_a, FACTOR_A))
+    bit_gen_b = lowest_16_bits(generator(start_b, FACTOR_B))
+
+    return count(bit_gen_a, bit_gen_b)
+
+
 def solve_part_2(puzzle_input):
-    pass
+    start_a, start_b = parse_start_values(puzzle_input)
+
+    bit_gen_a = lowest_16_bits(filter(lambda val: val % 4 == 0,
+                                      generator(start_a, FACTOR_A)))
+    bit_gen_b = lowest_16_bits(filter(lambda val: val % 8 == 0,
+                                      generator(start_b, FACTOR_B)))
+
+    return count(bit_gen_a, bit_gen_b)
