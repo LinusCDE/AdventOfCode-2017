@@ -1,3 +1,4 @@
+log = None
 FACTOR_A, FACTOR_B = 16807, 48271
 
 
@@ -30,10 +31,15 @@ def parse_start_values(puzzle_input):
 
 def count(bit_gen_a, bit_gen_b, cycles):
     count = 0
+    output_count = 0
 
-    for index, gen_a, gen_b in zip(range(cycles), bit_gen_a, bit_gen_b):
-        if index % 1000000 == 0:
-            print(index)
+    for index, gen_a, gen_b in zip(range(cycles),
+                                   lowest_16_bits(bit_gen_a),
+                                   lowest_16_bits(bit_gen_b)):
+        output_count += 1
+        if output_count > 500000:
+            output_count = 0
+            log('Progress: %d' % ((index+1) * 100 / cycles) + '%')
         if len(gen_a) > len(gen_b) and gen_a.endswith(gen_b):
             count += 1
         elif gen_b.endswith(gen_a):
@@ -45,18 +51,16 @@ def count(bit_gen_a, bit_gen_b, cycles):
 def solve_part_1(puzzle_input):
     start_a, start_b = parse_start_values(puzzle_input)
 
-    bit_gen_a = lowest_16_bits(generator(start_a, FACTOR_A))
-    bit_gen_b = lowest_16_bits(generator(start_b, FACTOR_B))
+    numbers_a = generator(start_a, FACTOR_A)
+    numbers_b = generator(start_b, FACTOR_B)
 
-    return count(bit_gen_a, bit_gen_b, 40000000)
+    return count(numbers_a, numbers_b, 40000000)
 
 
 def solve_part_2(puzzle_input):
     start_a, start_b = parse_start_values(puzzle_input)
 
-    bit_gen_a = lowest_16_bits(filter(lambda val: val % 4 != 0,
-                                      generator(start_a, FACTOR_A)))
-    bit_gen_b = lowest_16_bits(filter(lambda val: val % 8 != 0,
-                                      generator(start_b, FACTOR_B)))
+    numbers_a = filter(lambda val: val % 4 == 0, generator(start_a, FACTOR_A))
+    numbers_b = filter(lambda val: val % 8 == 0, generator(start_b, FACTOR_B))
 
-    return count(bit_gen_a, bit_gen_b, 5000000)
+    return count(numbers_a, numbers_b, 5000000)
