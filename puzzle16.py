@@ -19,12 +19,11 @@ def partner(programs, a_name, b_name):
     exchange(programs, programs.index(a_name), programs.index(b_name))
 
 
-def solve_part_1(puzzle_input):
-    programs = get_default_order()
-    for dance_move in puzzle_input.split(','):
-        if dance_move[0] == 's':
+def dance(programs, dance_moves):
+    for dance_move in dance_moves:
+        if dance_move[0] == 's':  # Move with one parameter
             spin(programs, int(dance_move[1:]))
-        else:
+        else:  # Moves with two paramaters
             a, b = dance_move[1:].split('/')
             if dance_move[0] == 'p':
                 partner(programs, a, b)
@@ -32,8 +31,20 @@ def solve_part_1(puzzle_input):
                 exchange(programs, int(a), int(b))
             else:
                 raise Exception('Unexpected dance move: %s' % dance_move)
+
+
+def solve_part_1(puzzle_input):
+    programs = get_default_order()
+    dance_moves = puzzle_input.split(',')
+    dance(programs, dance_moves)
     return ''.join(programs)
 
 
 def solve_part_2(puzzle_input):
-    pass
+    programs = get_default_order()
+    dance_moves = puzzle_input.split(',')
+    dance(programs, dance_moves)
+
+    for _ in range(int(10e8)):
+        dance(programs, dance_moves)
+    return ''.join(programs)
