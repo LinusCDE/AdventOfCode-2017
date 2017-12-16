@@ -41,10 +41,17 @@ def solve_part_1(puzzle_input):
 
 
 def solve_part_2(puzzle_input):
-    programs = get_default_order()
+    additional_cycles = 1000000000
     dance_moves = puzzle_input.split(',')
-    dance(programs, dance_moves)
+    programs, start_programs = get_default_order(), get_default_order()
 
-    for _ in range(int(10e8)):
+    count = 0
+    while count < additional_cycles:
+        count += 1
         dance(programs, dance_moves)
+
+        if programs == start_programs:
+            # Repetition dected. Shortening:
+            additional_cycles %= count  # Remaining cycles
+            count = 0
     return ''.join(programs)
