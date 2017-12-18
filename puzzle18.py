@@ -27,7 +27,7 @@ def execute_sound_instructions(instructions):
             if freq != 0:
                 return last_played
         elif instr[0] == 'jgz':
-            if register.get(instr[1], 0) != 0:
+            if get_value(instr[1]) > 0:
                 index += get_value(instr[2]) - 1  # -1: compensates 'index += 1'
         else:
             raise Exception('Unknown instruction: %s' % instr[0])
@@ -71,7 +71,7 @@ def execute_part_2(instructions, register=dict()):
                 return executed, outbox
             register[instr[1]] = inbox.pop(0)
         elif instr[0] == 'jgz':
-            if register.get(instr[1], 0) != 0:
+            if get_value(instr[1]) > 0:
                 index += get_value(instr[2]) - 1  # -1: compensates 'index += 1'
         else:
             raise Exception('Unknown instruction: %s' % instr[0])
@@ -89,7 +89,6 @@ def solve_part_2(puzzle_input):
     prog1_sent_total = 0
 
     while prog1_executions != 0 or prog1_executions != 0:
-        #print('Executing program %d' % execute_id)
         if execute_id == 0:
             prog0_executions, outbox = execute_part_2(instructions,
                                                       prog0_register)
@@ -98,8 +97,6 @@ def solve_part_2(puzzle_input):
             for value in outbox:
                 inbox.append(value)
             execute_id = 1
-            #print('Jumps 0: %d' % prog0_executions)
-            #print(prog0_register)
         elif execute_id == 1:
             prog1_executions, outbox = execute_part_2(instructions,
                                                       prog1_register)
@@ -108,8 +105,6 @@ def solve_part_2(puzzle_input):
             for value in outbox:
                 inbox.append(value)
             prog1_sent_total += len(outbox)
-            print('Solution so far: %d (%d jumps)' % (prog1_sent_total, prog1_executions))
-            #print(prog1_register)
             execute_id = 0
 
     return prog1_sent_total
