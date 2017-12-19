@@ -23,14 +23,14 @@ def load_route(puzzle_input) -> CoordinateField:
     return field
 
 
-def is_letter(char: str):
+def is_letter(char: str) -> bool:
     '''Returns whether the character ('char') is one of the searched letters.'''
     if not isinstance(char, str):
         return False
     return char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 
-def is_road(char: str):
+def is_road(char: str) -> bool:
     '''Returns whether this character ('char') is part of a road.
     A road can be '|', '-' or any uppercase letter (see 'is_letter(char)').'''
     return char in ('|', '-') or is_letter(char)
