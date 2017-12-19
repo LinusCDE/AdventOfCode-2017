@@ -5,6 +5,23 @@ def is_position(pos) -> bool:
             and isinstance(pos[0], int) and isinstance(pos[1], int))
 
 
+def add(pos1, pos2) -> tuple:
+    '''Returns addition of 'pos1' and 'pos2'.'''
+    if not is_position(pos1) or not is_position(pos2):
+        return None
+
+    return pos1[0] + pos2[0], pos1[1] + pos2[1]
+
+
+def direction(from_pos, to_pos) -> tuple:
+    '''Returns the position that describes the way from 'from_pos' to
+    'to_pos' (called a vector).'''
+    if not is_position(from_pos) or not is_position(to_pos):
+        return None
+
+    return to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]
+
+
 class SecondDimension:
 
     def __init__(self, x: int, parent: 'CoordinateField'):
@@ -86,18 +103,7 @@ class CoordinateField:
     def __init__(self, min_x: int=None, max_x: int=None,
                  min_y: int=None, max_y: int=None):
 
-        if min_x is None and max_x is None \
-         and min_y is None and max_y is None:
-            self._infinite = True
-        else:
-            if min_x is None or max_x is None \
-             or min_y is None or max_y is None:
-                raise TypeError('Either set all min/max-values or none!')
-            self._infinite = False
-
-        self._min_x, self._max_x = min_x, max_x
-        self._min_y, self._max_y = min_y, max_y
-
+        self.set_size(min_x, max_x, min_y, max_y)
         self._x_layers = dict()
 
     @property
@@ -119,6 +125,30 @@ class CoordinateField:
     @property
     def max_y(self):
         return self._max_y
+
+    def set_size(self, min_x: int=None, max_x: int=None,
+                 min_y: int=None, max_y: int=None):
+        '''Adds max- and minimum values to the coordinate field that can't
+        be accessd.
+
+        When set, only positions that are within or excactly at a range are
+        allowed.
+        If no arguments are supplied the coordinate field is infinite.
+
+        Warning: The limits only apply for later use. There may still be
+        values outside of this border.
+        '''
+        if min_x is None and max_x is None \
+           and min_y is None and max_y is None:
+            self._infinite = True
+        else:
+            if min_x is None or max_x is None \
+               or min_y is None or max_y is None:
+                raise TypeError('Either set all min/max-values or all to none!')
+            self._infinite = False
+
+        self._min_x, self._max_x = min_x, max_x
+        self._min_y, self._max_y = min_y, max_y
 
     def in_field(self, pos) -> bool:
         '''Checks whether a position is in the coordinate field.
