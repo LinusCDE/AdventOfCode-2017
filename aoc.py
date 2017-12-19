@@ -91,12 +91,14 @@ if __name__ == '__main__':  # Main part
     input_file_name = args.file if args.file else 'inputs/input%s' % args.day
 
     # Getting function for requested day and part:
-    puzzle = None
+    puzzle, strip_input = None, True
     try:
         puzzle = __import__(name=module_name)
         if not hasattr(puzzle, func_name):
             raise Exception('Part not supported yet!')
         puzzle.log = log  # Injects log-function
+        if hasattr(puzzle, 'AOC_STRIP_INPUT'):
+            strip_input = puzzle.AOC_STRIP_INPUT
     except Exception:
         print(argv[0], 'error', 'Day ' + str(args.day) + ', Part '
               + str(args.part) + ' can\'t be solved, yet.', sep=': ',
@@ -116,7 +118,9 @@ if __name__ == '__main__':  # Main part
 
         puzzle_input = None
         with open(input_file_name, 'r') as f:
-            puzzle_input = f.read().strip()
+            puzzle_input = f.read()
+            if strip_input:
+                puzzle_input = puzzle_input.strip()
     else:
         puzzle_input = args.input
 
