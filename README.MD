@@ -15,9 +15,9 @@ Feel Free to use this as a simplified structure for your own scripts.
 ### Dependencies:
 These puzzles require additional dependencies:
 
-  Puzzle/Day |   Required
-:-----------:|:-------------:
-      20     |    numpy
+Puzzle/Day   | Required      |
+:-----------:|:-------------:|
+20           |    numpy      |
 
 They can be installed using the following command:
 `$ pip3 install <requirement>`
