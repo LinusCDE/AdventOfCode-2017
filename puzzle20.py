@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import combinations
 
 
 class Particle:
@@ -18,6 +19,12 @@ class Particle:
     def tick(self):
         self.vec = np.add(self.vec, self.acc)
         self.pos = np.add(self.pos, self.vec)
+
+    def collides(self, other: 'Particle'):
+        return (self.pos == other.pos).all()
+
+    def __hash__(self):
+        return self.identifier
 
 
 def load_particles(puzzle_input) -> list:
@@ -52,4 +59,23 @@ def solve_part_1(puzzle_input):
 
 
 def solve_part_2(puzzle_input):
-    pass
+    particles = load_particles(puzzle_input)
+
+    # I don't know if its cheating to call 1000 ticks
+    # a accurate 'long run'. But it worked for me.
+    for tick in range(100):
+        for particle in particles:
+            particle.tick()
+        log('Current tick: %d' % tick)
+
+        # Collision dectection:
+        collided = set()
+        for particle1, particle2 in combinations(particles, r=2):
+            if particle1.collides(particle2):
+                log('%s collided with %s' % (particle1, particle2))
+                collided.update((particle1, particle2))
+
+        for particle in collided:
+            particles.remove(particle)
+
+    return len(particles)
