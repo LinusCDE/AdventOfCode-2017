@@ -1,5 +1,10 @@
-import numpy as np
 from time import time
+
+try:
+    import numpy as np
+except ImportError:
+    print('ERROR: This puzzle (day 20) requires "numpy"!')
+    raise RuntimeError()
 
 log = None
 # Definition of a 'long run'. Probably cheating. But it works. ;D

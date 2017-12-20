@@ -8,10 +8,19 @@ Feel Free to use this as a simplified structure for your own scripts.
 ## Installation
 
 - Install python3
-- `$ pip3 install argparse`
 - Download this repo
 - Go into the directory of this repo
 - `$ python aoc.py -h`
+
+### Dependencies:
+These puzzles require additional dependencies:
+
+  Puzzle/Day |   Required
+:-----------:|:-------------:
+      20     |    numpy
+
+They can be installed using the following command:
+`$ pip3 install <requirement>`
 
 
 ## Structure
