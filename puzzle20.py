@@ -1,41 +1,38 @@
 import numpy as np
-from itertools import combinations
+from time import time
 
-
+log = None
 # Definition of a 'long run'. Probably cheating. But it works. ;D
 LONG_RUN_TICKS = 500
 
 
 class Particle:
+    '''Represents a Particle in the current puzzle (obvious or not?).'''
 
     def __init__(self, identifier: int, pos: tuple, vec: tuple, acc: tuple):
         self.identifier = identifier
         self.pos = np.array(pos)
         self.vec = np.array(vec)
         self.acc = np.array(acc)
-        self._pos_hash = None
+        self._pos_hash_cache = None
 
-    def __str__(self):
-        return 'Particle %d' % self.identifier
-
-    def manhatten_distance_to_zero(self):
+    def manhatten_distance_to_zero(self) -> int:
+        '''Returns the manhatten distance to zero.'''
         return np.abs(self.pos).sum()
 
     def tick(self):
+        '''Updates the particle according to the puzzle.'''
         self.vec = np.add(self.vec, self.acc)
         self.pos = np.add(self.pos, self.vec)
-        self._pos_hash = None
+        self._pos_hash_cache = None  # Clear cache
 
-    def collides(self, other: 'Particle'):
-        return self.pos_hash() == other.pos_hash()
-
-    def __hash__(self):
-        return self.identifier
-
-    def pos_hash(self):
-        if self._pos_hash is None:
-            self._pos_hash = hash(str(self.pos))
-        return self._pos_hash
+    def pos_hash(self) -> int:
+        '''Returns a simple hash of the current position.
+        The hash is cached in '_pos_hash_cache'.
+        '''
+        if self._pos_hash_cache is None:
+            self._pos_hash_cache = hash(str(self.pos))
+        return self._pos_hash_cache
 
 
 def load_particles(puzzle_input) -> list:
@@ -70,38 +67,37 @@ def solve_part_1(puzzle_input):
 def solve_part_2(puzzle_input):
     particles = load_particles(puzzle_input)
 
-    # I don't know if its cheating to call 1000 ticks
-    # a accurate 'long run'. But it worked for me.
+    last_progress_report = time()
+
     for tick in range(LONG_RUN_TICKS):
 
-        # Data for collision dectection:
-        positions, collided_pos_hashes = set(), set()
+        # ----- Report progress: -----
+        if time() - last_progress_report > 1.5:
+            last_progress_report = time()
+            print('Progress: %d%%' % ((tick + 1) * 100 / LONG_RUN_TICKS))
 
-        # Update particles and rougly look out for collisions:
-        for index, particle in enumerate(particles):
+        # ---- Update particles and look out for collisions: ----
+        pos_hashes, collided_pos_hashes = set(), set()
+        for particle in particles:
             particle.tick()
 
-            # Used for a rough collision dectection:
-            pos_hash = particle.pos_hash()
+            pos_hash = particle.pos_hash()  # Used for collision dectection
 
             # Find collisions
-            if pos_hash in positions:
-                collided_pos_hashes.add(pos_hash)
+            if pos_hash not in pos_hashes:
+                pos_hashes.add(pos_hash)
             else:
-                positions.add(pos_hash)
+                collided_pos_hashes.add(pos_hash)
 
-        # Get particles of collided position hashes:
-        collided_particles = set()
-        for particle in particles:
-            if particle.pos_hash() in collided_pos_hashes:
-                collided_particles.add(particle)
+        # ----- Resolve and remove collided particles: ------
+        if len(collided_pos_hashes) > 0:
+            collisions = 0
 
-        if len(collided_particles) > 0:
-            log('Found %d collision(s) during tick %d'
-                % (len(collided_particles), tick))
+            for particle in tuple(particles):  # (mutation during iteration)
+                if particle.pos_hash() in collided_pos_hashes:
+                    particles.remove(particle)
+                    collisions += 1
 
-        # Remove collided particles:
-        for particle in collided_particles:
-            particles.remove(particle)
+            log('Tick %d: Removed %d collided particles.' % (tick, collisions))
 
     return len(particles)
