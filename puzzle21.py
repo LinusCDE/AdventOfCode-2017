@@ -8,7 +8,7 @@ class PixelGrid(CoordinateField):
 
     def __hash__(self):
         data = []
-        for x, y, value in self.items():
+        for x, y, value in self.items(only_existing=False):
             data.append(x)
             data.append(y)
             data.append(1 if value == '#' else 0)
@@ -70,36 +70,42 @@ def load_rules(puzzle_input):
         rule_in2 = flipped_horizontal(rule_in1)
         rule_in3 = rotated_90(rule_in1)
         rule_in4 = flipped_horizontal(rotated_90(rule_in3))
+        rule_in5 = rotated_90(rule_in3)
+        rule_in6 = rotated_90(rule_in5)
+        rule_in7 = flipped_horizontal(rule_in6)
         rules[rule_in1] = rule_out
         rules[rule_in2] = rule_out
         rules[rule_in3] = rule_out
         rules[rule_in4] = rule_out
+        rules[rule_in5] = rule_out
+        rules[rule_in6] = rule_out
+        rules[rule_in7] = rule_out
 
-        print_grid(rule_in1)
-        print_grid(rule_in2)
-        print_grid(rule_in3)
-        print_grid(rule_in4)
     return rules
 
 
 def to_grid_grid(master_grid: PixelGrid):
-    inner_size = 3 if (master_grid.max_x+1) % 3 == 0 else 2
+    inner_size = 2 if (master_grid.max_x+1) % 2 == 0 else 3
     outer_size = (master_grid.max_x+1) // inner_size
+    print('O:', outer_size, 'I:', inner_size)
 
     grid_grid = PixelGrid(0, outer_size-1, 0, outer_size-1)
+    print('Grid: %dx%d' % (grid_grid.max_x, grid_grid.max_y))
 
     for x, y in grid_grid.coordinates(only_existing=False):
         grid_grid[x, y] = PixelGrid(0, inner_size-1, 0, inner_size-1)
 
     for mgx, mgy, value in master_grid.items():
-        grid_grid_x = mgx // outer_size
-        grid_grid_y = mgy // outer_size
+        grid_grid_x = mgx // inner_size
+        grid_grid_y = mgy // inner_size
 
+        print('Pos:', grid_grid_x, ',', grid_grid_y)
         child = grid_grid[grid_grid_x, grid_grid_y]
 
-        inner_x = mgx % outer_size
-        inner_y = mgy % outer_size
+        inner_x = mgx % inner_size
+        inner_y = mgy % inner_size
 
+        print('PosInner:', inner_x, ',', inner_y)
         child[inner_x, inner_y] = value
 
     return grid_grid
@@ -113,7 +119,7 @@ def to_master_grid(grid_grid: PixelGrid):
 
     for ggx, ggy, grid in grid_grid.items():
         for ix, iy, value in grid.items():
-            master_grid[ggx * outer_size + ix, ggy * outer_size + iy] = value
+            master_grid[ggx * inner_size + ix, ggy * inner_size + iy] = value
 
     return master_grid
 
@@ -126,22 +132,31 @@ def sharpen(source_grid: PixelGrid, rules: dict) -> PixelGrid:
     for x, y, grid in grid_grid.items():
         print('Rule for:')
         print_grid(grid)
+        print("VVV")
+        print_grid(rules[grid])
         grid_grid[x, y] = rules[grid]
     return to_master_grid(grid_grid)
+
+
+def count_lights(grid: PixelGrid) -> int:
+    count = 0
+    for value in grid.values():
+        if value == '#':
+            count += 1
+    return count
 
 
 def solve_part_1(puzzle_input):
     rules = load_rules(puzzle_input)
     print(len(rules))
-    start = flat_to_grid('.#./..#/###')
-    #r1 = rules[start]
-    #rs = to_grid_grid(r1)
-    #rm = to_master_grid(rs)
-    #print_grid(rm)
-    s1 = sharpen(start, rules)
-    print_grid(s1)
-    s2 = sharpen(s1, rules)
-    print_grid(s2)
+    grid = flat_to_grid('.#./..#/###')
+
+    for gen in range(5):
+        print('Generation %d:' % gen)
+        grid = sharpen(grid, rules)
+        print_grid(grid)
+
+    return count_lights(grid)
 
 
 def solve_part_2(puzzle_input):
