@@ -3,7 +3,7 @@ from coordinate_utils import CoordinateField
 
 # DISCLAIMER:
 # This puzzle could perform significantly better if it wasn't such heavy
-# with the use of OOP (classes), which should be easyier to understand.
+# with the use of OOP (classes). But it should be easier to understand.
 
 
 print('Hint: Run this puzzle with \'pypy3\' to get vastly improved '
