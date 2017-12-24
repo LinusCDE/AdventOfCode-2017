@@ -59,7 +59,7 @@ def execute_part_2(instructions):
 
     index = 0
 
-    history = []
+    history = set()
     shortcuts = dict()
 
     def set_value(name, value):
@@ -70,17 +70,17 @@ def execute_part_2(instructions):
         instr = instructions[index].split()
         entries[8] = index
 
-        try:
-            estr = str(entries)
+        estr = str(entries)
 
-            if estr in shortcuts:
-                index = shortcuts[estr]
-                continue
+        if estr in shortcuts:
+            index = shortcuts[estr]  # Not shortcuts used when prog reaches 4G
+            print('Shortcutted to %d' % index)
+            continue
 
-            idx = history.index(estr)
+        if estr in history:
             shortcuts[estr] = index
-        except ValueError:
-            pass
+        else:
+            history.add(estr)
 
         if instr[0] == 'set':
             set_value(instr[1], value_of(instr[2]))
