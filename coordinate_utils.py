@@ -2,7 +2,7 @@ def is_position(pos) -> bool:
     '''Checks if 'pos' is a valid 2d-coordinate.'''
     return ((isinstance(pos, tuple) or isinstance(pos, list))
             and len(pos) == 2
-            and isinstance(pos[0], int) and isinstance(pos[1], int))
+            and type(pos[0]) is int and type(pos[1]) is int)
 
 
 def add(pos1, pos2) -> tuple:
@@ -181,7 +181,7 @@ class CoordinateField:
         if is_position(key):
             return self[key[0]][key[1]]  # Changes self[x, y] to self[x][y]
 
-        if not isinstance(key, int):
+        if type(key) is not int:
             raise TypeError('Int or position (tuple with 2 params) expected!')
 
         # 'key' is at this point the x-position:
@@ -278,7 +278,7 @@ class CoordinateField:
             for y, value in x_layer.items():
                 yield x, y, value
 
-    def adjectents(self, pos, radius: int=1, diagonals: bool=True):
+    def adjectents(self, pos, radius: int=int(1), diagonals: bool=True):
         '''Yields all surrounding coordinates of the given 'pos'.
         The default 'radius' is 1, which are the direct neighbours
         surrounding 'pos'.
