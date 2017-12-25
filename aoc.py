@@ -61,9 +61,9 @@ if __name__ == '__main__':  # Main part
 
     args = ap.parse_args()
 
-    # Validate argument 'day' (only 1 to 24):
-    if args.day < 1 or args.day > 24:
-        print(argv[0], 'error', 'argument day', 'Only values between 1 and 24'
+    # Validate argument 'day' (only 1 to 25):
+    if args.day < 1 or args.day > 25:
+        print(argv[0], 'error', 'argument day', 'Only values between 1 and 25'
               + ' are allowed.', sep=': ', file=stderr)
         exit(1)
 
