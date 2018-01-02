@@ -1,3 +1,6 @@
+from functools import reduce
+
+
 def complex_reverse(elements: list, index: int, length: int):
     '''Reverses a specified sub-list in 'elements'.'''
     size = len(elements)  # To save some computation time
@@ -39,10 +42,14 @@ def xor_all(elements: list) -> int:
     '''Returns the combined xor-result of each element in the list 'elements'
     Note that 'elements' is expected to be filled only with ints.
     '''
-    value = 0  # It is save to operate with 0 for the first time
-    for element in elements:
-        value ^= element  # Xor with last xor-result
-    return value
+    # # Recommended in Python3+:
+    # value = 0  # It is save to operate with 0 for the first time
+    # for element in elements:
+    #     value ^= element  # Xor with last xor-result
+    # return value
+
+    # Same as the above:
+    return reduce(lambda x, y: x ^ y, elements)
 
 
 def safe_hex(number: int) -> str:
