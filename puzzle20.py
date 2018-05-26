@@ -21,8 +21,8 @@ class Particle:
         self.acc = np.array(acc)
         self._pos_hash_cache = None
 
-    def manhatten_distance_to_zero(self) -> int:
-        '''Returns the manhatten distance to zero.'''
+    def manhattan_distance_to_zero(self) -> int:
+        '''Returns the manhattan distance to zero.'''
         return np.abs(self.pos).sum()
 
     def tick(self):
@@ -65,7 +65,7 @@ def solve_part_1(puzzle_input):
             particle.tick()
 
     nearest = min(particles,
-                  key=lambda particle: particle.manhatten_distance_to_zero())
+                  key=lambda particle: particle.manhattan_distance_to_zero())
     return nearest.identifier
 
 
